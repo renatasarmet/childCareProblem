@@ -94,9 +94,35 @@ void* sai_adulto(void *v) {
 }
 
 
+void* sai_crianca(void *v) {
+  int i, j;
+
+  for (i = 0; i < N_ITENS; i++) {
+    sem_wait(&pos_ocupada_crianca);
+
+	inicio_crianca = (inicio_crianca + 1) % N_ITENS;
+	qtd_crianca -= 1;
+    printf("Saindo crianca, item = %d. Tenho qtd = %d\n", buffer_crianca[inicio_crianca], qtd_crianca);
+    sem_post(&pos_vazia_crianca);
+
+	while (3 * qtd_adulto > qtd_crianca - 1);
+
+
+	for (j = 0; j < 3; j++){
+		sem_wait(&sem_crianca);
+	}
+
+	sem_post(&sem_crianca);
+
+    
+    sleep(random() % 10);  /* Permite que a outra thread execute */  
+  }
+  return NULL;
+}
+
 int main() {
 
-	pthread_t thr_entra_adulto, thr_entra_crianca, thr_sai_adulto;
+	pthread_t thr_entra_adulto, thr_entra_crianca, thr_sai_adulto, thr_sai_crianca;
 
  	sem_init(&sem_crianca, 0, 0); // Inicia com 0 criancas
   	sem_init(&sem_adulto, 0, 1); // Inicia com 1 adulto
@@ -111,6 +137,8 @@ int main() {
   	pthread_create(&thr_entra_crianca, NULL, entra_crianca, NULL);
 
   	pthread_create(&thr_sai_adulto, NULL, sai_adulto, NULL);
+	pthread_create(&thr_sai_crianca, NULL, sai_crianca, NULL);
+
 
   	pthread_join(thr_entra_adulto, NULL); 
   	pthread_join(thr_entra_crianca, NULL);
