@@ -76,18 +76,22 @@ void* sai_adulto(void *v){
 	for (i = 0; i < N_ITENS; i++){
 		sem_wait(&pos_ocupada_adulto);
 
-		while (qtd_crianca > 3 * (qtd_adulto - 1));
+		while (qtd_crianca > 3 * (qtd_adulto - 1)); //enquanto tiver mais crianca que o maximo para qtd_adulto - 1, nao da pra continuar
 
+		// Como vai tirar um adulto, tem que tirar a possibilidade de entrar 3 criancas
 		for (j = 0; j < 3; j++){
 			sem_wait(&sem_crianca);
 		}
-
-		sem_post(&sem_adulto);
 
 		inicio_adulto = (inicio_adulto + 1) % N_ITENS;
 		qtd_adulto -= 1;
 		printf("Saindo adulto, item = %d. Tenho qtd = %d\n", buffer_adulto[inicio_adulto], qtd_adulto);
 		sem_post(&pos_vazia_adulto);
+
+		// Se nao tem mais adulto, libera um pra entrar
+		if (qtd_adulto <= 0)
+			sem_post(&sem_adulto);
+
 		sleep(random() % 10);
 	}
 	return NULL;
@@ -106,11 +110,11 @@ void* sai_crianca(void *v){
 		sem_post(&pos_vazia_crianca);
 
 		while ((qtd_adulto - 1) * 3 - 1 > qtd_crianca){ //enquanto estiver sobrando adulto, tira adulto
-			sem_wait(&sem_adulto);
+			qtd_adulto -= 1;
 		}
 
 		sem_post(&sem_crianca);
-		sleep(random() % 15);
+		sleep(random() % 13);
 	}
 	return NULL;
 }
@@ -120,7 +124,7 @@ int main(){
 	pthread_t thr_entra_adulto, thr_entra_crianca, thr_sai_adulto, thr_sai_crianca;
 
  	sem_init(&sem_crianca, 0, 0); // Inicia com 0 criancas
-  sem_init(&sem_adulto, 0, 1); // Inicia com 1 adulto
+  	sem_init(&sem_adulto, 0, 1); // Inicia com 1 adulto
 
 	sem_init(&pos_vazia_adulto, 0, N_ITENS);
 	sem_init(&pos_ocupada_adulto, 0, 0);
@@ -128,24 +132,24 @@ int main(){
 	sem_init(&pos_vazia_crianca, 0, N_ITENS);
 	sem_init(&pos_ocupada_crianca, 0, 0);
 
-  pthread_create(&thr_entra_adulto, NULL, entra_adulto, NULL);
-  pthread_create(&thr_entra_crianca, NULL, entra_crianca, NULL);
+  	pthread_create(&thr_entra_adulto, NULL, entra_adulto, NULL);
+  	pthread_create(&thr_entra_crianca, NULL, entra_crianca, NULL);
 
-  pthread_create(&thr_sai_adulto, NULL, sai_adulto, NULL);
+  	pthread_create(&thr_sai_adulto, NULL, sai_adulto, NULL);
 	pthread_create(&thr_sai_crianca, NULL, sai_crianca, NULL);
 
 
-  pthread_join(thr_entra_adulto, NULL);
-  pthread_join(thr_entra_crianca, NULL);
-  pthread_join(thr_sai_adulto, NULL);
+  	pthread_join(thr_entra_adulto, NULL);
+  	pthread_join(thr_entra_crianca, NULL);
+  	pthread_join(thr_sai_adulto, NULL);
 	pthread_join(thr_sai_crianca, NULL);
 
-  sem_destroy(&sem_crianca);
-  sem_destroy(&sem_adulto);
-  sem_destroy(&pos_ocupada_adulto);
-  sem_destroy(&pos_vazia_adulto);
-  sem_destroy(&pos_ocupada_crianca);
-  sem_destroy(&pos_vazia_crianca);
+  	sem_destroy(&sem_crianca);
+  	sem_destroy(&sem_adulto);
+  	sem_destroy(&pos_ocupada_adulto);
+  	sem_destroy(&pos_vazia_adulto);
+  	sem_destroy(&pos_ocupada_crianca);
+  	sem_destroy(&pos_vazia_crianca);
 
   return 0;
 }
