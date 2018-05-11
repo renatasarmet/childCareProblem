@@ -4,6 +4,6 @@
 ` $ gcc -pthread chieldCareProblem.c -o ccp
 ` $ ./ccp
 ## Para parar o programa:
-` (Ctrl + C)
+` $ (Ctrl + C)
 
 
