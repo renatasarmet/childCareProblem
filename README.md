@@ -1,14 +1,14 @@
-# The Child Care Problem
+## The Child Care Problem
 
-## Para compilar o programa:
+### Para compilar o programa:
 ```bash
 $ gcc -pthread chieldCareProblem.c -o ccp
 $ ./ccp
 ```
-## Para parar o programa:
+### Para parar o programa:
 `(Ctrl + C)`
 
-## Realizado pelos alunos:
+### Realizado pelos alunos:
 * Leonardo de Oliveira Peralta - 726556
 * Rebeca Lima Rocha - 486060
 * Renata Sarmet Smiderle Mendes - 726586
