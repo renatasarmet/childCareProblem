@@ -6,7 +6,9 @@ $ gcc -pthread chieldCareProblem.c -o ccp
 $ ./ccp
 ```
 ### Para parar o programa:
-`(Ctrl + C)`
+```bash
+(Ctrl + C)
+```
 
 ### Realizado pelos alunos:
 * Leonardo de Oliveira Peralta - 726556
