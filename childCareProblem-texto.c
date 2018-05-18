@@ -33,10 +33,13 @@ int inicio_adulto = 0, fim_adulto = 0, inicio_crianca = 0, fim_crianca = 0;
 
 // Thread responsavel pela entrada de adultos na sala
 void* entra_adulto(void *v) {
+
 	int i;
 	for(i=0;i<N_ITENS;i++){
 		sem_wait(&pos_vazia_adulto); // Espera ter alguma posicao vazia para entrar um adulto
+		//printf("\n---------------------------------eh, tinha posicao vazia---\n");
 		sem_wait(&sem_adulto); // Espera ter demanda de adulto
+		//printf("\n---------------------------------eh, tinha um post aqui---\n");
 
 		// Coloca o adulto
 		qtd_adulto += 1;
@@ -60,6 +63,7 @@ void* entra_adulto(void *v) {
 
 // Thread responsavel pela entrada de criancas na sala
 void* entra_crianca(void *v) {
+
 	int quantas_criancas, i;
 	for(i=0;i< 3 * N_ITENS;i++){
 		sem_wait(&pos_vazia_crianca); // Espera ter alguma posicao vazia para entrar crianca
@@ -89,6 +93,7 @@ void* entra_crianca(void *v) {
 
 // Thread responsavel pela saida de adultos da sala
 void* sai_adulto(void *v){
+
 	int i, j;
 
 	for (i = 0; i < N_ITENS; i++){
@@ -109,10 +114,10 @@ void* sai_adulto(void *v){
 
 		sem_post(&pos_vazia_adulto); // Aumenta uma posicao vazia de adulto
 
-		// Se nao tem mais adulto, aumenta 1 na demanda de entrar adulto
-		if (qtd_adulto <= 0)
+		// Se nao tem mais adulto ou se todos estao ocupados, aumenta 1 na demanda de entrar adulto
+		if ((qtd_adulto <= 0)||(3 * qtd_adulto == qtd_crianca))
 			sem_post(&sem_adulto);
-		
+		 
 		sleep(random() % 10);
 	}
 	return NULL;
@@ -143,7 +148,7 @@ void* sai_crianca(void *v){
 			// Tira o adulto
 			inicio_adulto = (inicio_adulto + 1) % N_ITENS;
 			qtd_adulto -= 1;	
-			printf("\n--Forcando tirei um adulto, item %d. Tenho qtd = %d\n", buffer_adulto[inicio_adulto], qtd_adulto);
+			printf("\n--Forcando, tirei um adulto, item %d. Tenho qtd = %d\n\n", buffer_adulto[inicio_adulto], qtd_adulto);
 				
 		}
 
