@@ -37,9 +37,7 @@ void* entra_adulto(void *v) {
 	int i;
 	for(i=0;i<N_ITENS;i++){
 		sem_wait(&pos_vazia_adulto); // Espera ter alguma posicao vazia para entrar um adulto
-		//printf("\n---------------------------------eh, tinha posicao vazia---\n");
 		sem_wait(&sem_adulto); // Espera ter demanda de adulto
-		//printf("\n---------------------------------eh, tinha um post aqui---\n");
 
 		// Coloca o adulto
 		qtd_adulto += 1;
