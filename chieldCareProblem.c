@@ -3,14 +3,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-
+#include <string.h>
 #include <semaphore.h>
 
 #define N_ITENS 30
 
 // Buffer para escrever todos os adultos e outro para todas as criancas presentes na sala
-int buffer_adulto[N_ITENS]; 
-int buffer_crianca[3 * N_ITENS]; 
+char buffer_adulto[N_ITENS]; 
+char buffer_crianca[3 * N_ITENS]; 
 
 // Variaveis que indicam a quantidade de adultos e de criancas presentes na sala
 int qtd_adulto = 0, qtd_crianca = 0;
@@ -31,18 +31,62 @@ sem_t pos_ocupada_crianca;
 int inicio_adulto = 0, fim_adulto = 0, inicio_crianca = 0, fim_crianca = 0;
 
 
+void mostrarSala(){
+    
+    int i =0;
+    system("clear");
+    printf("\n\n\n  |");
+    for(i=0;i<10;i++){
+        printf("----");
+    }
+    printf("--|\n  | ");
+    for(i=0;i<10;i++){
+        printf(" %c  ",buffer_adulto[i]);
+    }
+    printf(" |\n  | ");
+     for(i=0;i<10;i++){
+        printf("%c%c%c ",buffer_crianca[i*3],buffer_crianca[i*3 + 1],buffer_crianca[i*3 + 2]);
+    }
+    printf(" |\n  |                                          |\n  | ");
+    for(i=0;i<10;i++){
+        printf(" %c  ",buffer_adulto[i +10]);
+    }
+    printf(" |\n  | ");
+     for(i=10;i<20;i++){
+        printf("%c%c%c ",buffer_crianca[i*3],buffer_crianca[i*3 + 1],buffer_crianca[i*3 + 2]);
+    }
+    printf(" |\n  |                                          |\n  | ");
+    for(i=0;i<10;i++){
+        printf(" %c  ",buffer_adulto[i +20]);
+    }
+    printf(" |\n  | ");
+     for(i=20;i<30;i++){
+        printf("%c%c%c ",buffer_crianca[i*3],buffer_crianca[i*3 + 1],buffer_crianca[i*3 + 2]);
+    }
+    printf(" |\n  |");
+    for(i=0;i<10;i++){
+        printf("----");
+    }
+    printf("--|\n\n\n");
+}
+
+
+
 // Thread responsavel pela entrada de adultos na sala
+
 void* entra_adulto(void *v) {
 	int i;
+    int j;
 	for(i=0;i<N_ITENS;i++){
 		sem_wait(&pos_vazia_adulto); // Espera ter alguma posicao vazia para entrar um adulto
 		sem_wait(&sem_adulto); // Espera ter demanda de adulto
 
 		// Coloca o adulto
 		qtd_adulto += 1;
-    		printf("Entrando adulto, item = %d. Tenho qtd = %d\n", i, qtd_adulto);
-    		fim_adulto = (fim_adulto + 1) % N_ITENS;
-		buffer_adulto[fim_adulto] = i;
+        printf("\nAcao : Entrando adulto.\n");
+		buffer_adulto[fim_adulto] = '0';
+		mostrarSala();
+        fim_adulto = (fim_adulto + 1) % N_ITENS;
 
 		sem_post(&pos_ocupada_adulto); // Aumenta uma posicao ocupada de adulto
 
@@ -60,17 +104,17 @@ void* entra_adulto(void *v) {
 
 // Thread responsavel pela entrada de criancas na sala
 void* entra_crianca(void *v) {
-	int quantas_criancas, i;
+	int quantas_criancas, i, j;
 	for(i=0;i< 3 * N_ITENS;i++){
 		sem_wait(&pos_vazia_crianca); // Espera ter alguma posicao vazia para entrar crianca
 		sem_wait(&sem_crianca); // Espera ter adulto livre para cuidar da crianca
 
 		// Coloca a crianca
 		qtd_crianca += 1;
-		printf("Entrando crianca, item = %d. Tenho qtd = %d\n", i, qtd_crianca);
+		buffer_crianca[fim_crianca] = 'o';
+        printf("\nAcao : Entrando crianca.\n");
+        mostrarSala();
 		fim_crianca = (fim_crianca + 1) % N_ITENS;
-		buffer_crianca[fim_crianca] = i;
-
 		sem_post(&pos_ocupada_crianca); // Aumenta uma posicao ocupada de crianca
 
 		sem_getvalue(&sem_crianca, &quantas_criancas); // Pega o valor de quantas criancas ainda podem entrar
@@ -101,11 +145,13 @@ void* sai_adulto(void *v){
 		for (j = 0; j < 3; j++){
 			sem_wait(&sem_crianca);
 		}
-
 		// Tira o adulto
+        buffer_adulto[inicio_adulto] = ' ';
+        printf("\nAcao : Saindo adulto.\n");
+        mostrarSala();
 		inicio_adulto = (inicio_adulto + 1) % N_ITENS;
 		qtd_adulto -= 1;
-		printf("Saindo adulto, item = %d. Tenho qtd = %d\n", buffer_adulto[inicio_adulto], qtd_adulto);
+		//printf("Saindo adulto, item = %d. Tenho qtd = %d\n", buffer_adulto[inicio_adulto], qtd_adulto);
 
 		sem_post(&pos_vazia_adulto); // Aumenta uma posicao vazia de adulto
 
@@ -127,10 +173,11 @@ void* sai_crianca(void *v){
 		sem_wait(&pos_ocupada_crianca); // Espera ter alguma posicao ocupada para tirar crianca
 
 		// Tira a crianca
-		inicio_crianca = (inicio_crianca + 1) % N_ITENS;
+        buffer_crianca[inicio_crianca] = ' ';
 		qtd_crianca -= 1;
-		printf("Saindo crianca, item = %d. Tenho qtd = %d\n", buffer_crianca[inicio_crianca], qtd_crianca);
-
+        printf("\nAcao : Saindo crianca.\n");
+        mostrarSala();
+        inicio_crianca = (inicio_crianca + 1) % N_ITENS;
 		sem_post(&pos_vazia_crianca); // Aumenta uma posicao vazia de crianca
 
 		//enquanto estiver sobrando adulto, tira adulto
@@ -149,6 +196,9 @@ void* sai_crianca(void *v){
 // Programa principal
 int main(){
 
+    memset (buffer_crianca,' ',90);
+    memset (buffer_adulto,' ',30);
+    
 	// Declaracao das threads
 	pthread_t thr_entra_adulto, thr_entra_crianca, thr_sai_adulto, thr_sai_crianca;
 
