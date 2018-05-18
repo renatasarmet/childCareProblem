@@ -67,6 +67,8 @@ void mostrarSala(){
         printf("----");
     }
     printf("--|\n\n\n");
+    sleep(random() % 3);
+    
 }
 
 
@@ -82,6 +84,8 @@ void* entra_adulto(void *v) {
 
 		// Coloca o adulto
 		qtd_adulto += 1;
+        
+        system("clear");
         printf("\nAcao : Entrando adulto.\n");
 		buffer_adulto[fim_adulto] = '0';
 		mostrarSala();
@@ -93,7 +97,7 @@ void* entra_adulto(void *v) {
 		sem_post(&sem_crianca);
 		sem_post(&sem_crianca);
 		sem_post(&sem_crianca);
-
+        
 		sleep(random() % 3);
 	}
 
@@ -111,6 +115,8 @@ void* entra_crianca(void *v) {
 		// Coloca a crianca
 		qtd_crianca += 1;
 		buffer_crianca[fim_crianca] = 'o';
+		
+        system("clear");
         printf("\nAcao : Entrando crianca.\n");
         mostrarSala();
 		fim_crianca = (fim_crianca + 1) % N_ITENS;
@@ -146,6 +152,8 @@ void* sai_adulto(void *v){
 		}
 		// Tira o adulto
         buffer_adulto[inicio_adulto] = ' ';
+        
+        system("clear");
         printf("\nAcao : Saindo adulto.\n");
         mostrarSala();
 		inicio_adulto = (inicio_adulto + 1) % N_ITENS;
@@ -174,6 +182,8 @@ void* sai_crianca(void *v){
 		// Tira a crianca
         buffer_crianca[inicio_crianca] = ' ';
 		qtd_crianca -= 1;
+        
+        system("clear");
         printf("\nAcao : Saindo crianca.\n");
         mostrarSala();
         inicio_crianca = (inicio_crianca + 1) % N_ITENS;
