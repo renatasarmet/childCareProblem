@@ -68,7 +68,7 @@ void* entra_crianca(void *v) {
 		// Coloca a crianca
 		qtd_crianca += 1;
 		printf("Entrando crianca, item = %d. Tenho qtd = %d\n", i, qtd_crianca);
-		fim_crianca = (fim_crianca + 1) % N_ITENS;
+		fim_crianca = (fim_crianca + 1) % (3 * N_ITENS);
 		buffer_crianca[fim_crianca] = i;
 
 		sem_post(&pos_ocupada_crianca); // Aumenta uma posicao ocupada de crianca
@@ -127,7 +127,7 @@ void* sai_crianca(void *v){
 		sem_wait(&pos_ocupada_crianca); // Espera ter alguma posicao ocupada para tirar crianca
 
 		// Tira a crianca
-		inicio_crianca = (inicio_crianca + 1) % N_ITENS;
+		inicio_crianca = (inicio_crianca + 1) % (3 * N_ITENS);
 		qtd_crianca -= 1;
 		printf("Saindo crianca, item = %d. Tenho qtd = %d\n", buffer_crianca[inicio_crianca], qtd_crianca);
 
@@ -135,7 +135,16 @@ void* sai_crianca(void *v){
 
 		//enquanto estiver sobrando adulto, tira adulto
 		while ((qtd_adulto - 1) * 3 - 1 >= qtd_crianca){ 
-			qtd_adulto -= 1;
+			sem_wait(&pos_ocupada_adulto); // Libera uma posicao do adulto
+			// Como vai tirar um adulto, tem que tirar a possibilidade de entrar 3 criancas
+			for (j = 0; j < 3; j++){
+				sem_wait(&sem_crianca);
+			}
+			// Tira o adulto
+			inicio_adulto = (inicio_adulto + 1) % N_ITENS;
+			qtd_adulto -= 1;	
+			printf("\n--Forcando tirei um adulto, item %d. Tenho qtd = %d\n", buffer_adulto[inicio_adulto], qtd_adulto);
+				
 		}
 
 		sem_post(&sem_crianca); // Disponibiliza 1 crianca a entrar em seu lugar 
@@ -159,7 +168,7 @@ int main(){
 	sem_init(&pos_vazia_adulto, 0, N_ITENS); // Inicia com N_ITENS vazios
 	sem_init(&pos_ocupada_adulto, 0, 0); // Inicia com 0 itens ocupados
 
-	sem_init(&pos_vazia_crianca, 0, N_ITENS); // Inicia com N_ITENS vazios
+	sem_init(&pos_vazia_crianca, 0, (3 * N_ITENS)); // Inicia com 3 * N_ITENS vazios
 	sem_init(&pos_ocupada_crianca, 0, 0); // Inicia com 0 itens ocupados
 
 	// Iniciando todas as threads
