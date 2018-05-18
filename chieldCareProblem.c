@@ -34,7 +34,6 @@ int inicio_adulto = 0, fim_adulto = 0, inicio_crianca = 0, fim_crianca = 0;
 void mostrarSala(){
     
     int i =0;
-    system("clear");
     printf("\n\n\n  |");
     for(i=0;i<10;i++){
         printf("----");
