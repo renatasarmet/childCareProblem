@@ -74,7 +74,6 @@ void mostrarSala(){
 
 
 // Thread responsavel pela entrada de adultos na sala
-
 void* entra_adulto(void *v) {
 	int i;
     int j;
@@ -166,7 +165,7 @@ void* sai_adulto(void *v){
 		if (qtd_adulto <= 0)
 			sem_post(&sem_adulto);
 		
-		sleep(random() % 10);
+		sleep(random() % 6);
 	}
 	return NULL;
 }
@@ -196,7 +195,7 @@ void* sai_crianca(void *v){
 
 		sem_post(&sem_crianca); // Disponibiliza 1 crianca a entrar em seu lugar 
 
-		sleep(random() % 13);
+		sleep(random() % 9);
 	}
 	return NULL;
 }
