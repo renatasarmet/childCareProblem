@@ -8,7 +8,7 @@
 
 ### Para compilar o programa:
 ```bash
-$ gcc -pthread chieldCareProblem.c -o ccp
+$ gcc -pthread childCareProblem-texto.c -o ccp
 $ ./ccp
 ```
 ### Para parar o programa:
